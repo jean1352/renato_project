@@ -33,6 +33,7 @@
                   <tr>
                     <th>Título</th>
                     <th>Descripción</th>
+                    <th>Precio</th>
                   </tr>
                 </thead>
 
@@ -45,10 +46,12 @@
                       $data_ = array();
                       $data_['title'] = $rows['titulo'];
                       $data_['description'] = $rows['descripcion'];
+                      $data_['precio'] = $rows['precio'];
                       $data[$rows['id_']] = $data_;
                       echo '<tr class="hoverable" onclick="openModalEdit(\''.$rows['id_'].'\');">
                               <td>'.$rows['titulo'].'</td>
                               <td>'.$rows['descripcion'].'</td>
+                              <td>'.$rows['precio'].'</td>
                             </tr>';
                     }
                   ?>
@@ -67,6 +70,11 @@
                     <i class="material-icons prefix orange-text">account_circle</i>
                     <input id="add_artitcle_description" type="text" class="validate">
                     <label for="add_artitcle_description">Descripción</label>
+                  </div>
+                  <div class="input-field col s12 m6">
+                    <i class="material-icons prefix orange-text">account_circle</i>
+                    <input id="add_artitcle_price" type="number" class="validate">
+                    <label for="add_artitcle_price">Precio</label>
                   </div>
                   <div class="divider col s12" style="margin-bottom: 1rem;"></div>
                   <div class="col s12 center-align">
@@ -105,6 +113,11 @@
               <input id="add_artitcle_description_edit" type="text" class="validate">
               <label for="add_artitcle_description_edit">Descripción</label>
             </div>
+            <div class="input-field col s12 m6">
+              <i class="material-icons prefix orange-text">account_circle</i>
+              <input id="add_artitcle_price_edit" type="number" class="validate">
+              <label for="add_artitcle_price_edit">Precio</label>
+            </div>
           </div>
       <div class="divider"></div>
       <div class="modal-footer">
@@ -127,6 +140,7 @@
         actual_edit = id;
         document.getElementById('add_article_title_edit').value = _articles_[id]['title'];
         document.getElementById('add_artitcle_description_edit').value = _articles_[id]['description'];
+        document.getElementById('add_artitcle_price_edit').value = _articles_[id]['precio'];
         M.Modal.getInstance(document.getElementById('modal-alert-add-edit')).open();
         M.updateTextFields();
       }
@@ -139,9 +153,15 @@
         }
         var title = document.getElementById('add_article_title');
         var description = document.getElementById('add_artitcle_description');
+        var price = document.getElementById('add_artitcle_price');
         if(isValid(title.value)){
           if(isValid(description.value)){
-            addArticleMotor(title.value, description.value);
+            if(!isNaN(price.value)){
+              addArticleMotor(title.value, description.value, price.value);
+            }else{
+              price.focus();
+              M.toast({html: 'Precio invalido.', classes: 'rounded'});
+            }
           }else{
             description.focus();
             M.toast({html: 'Descripción invalida.', classes: 'rounded'});  
@@ -155,9 +175,15 @@
       function editArticle(){
         var title = document.getElementById('add_article_title_edit');
         var description = document.getElementById('add_artitcle_description_edit');
+        var price = document.getElementById('add_artitcle_price_edit');
         if(isValid(title.value)){
           if(isValid(description.value)){
-            editArticleMotor(title.value, description.value);
+            if(!isNaN(price.value)){
+              editArticleMotor(title.value, description.value, price.value);
+            }else{
+              price.focus();
+              M.toast({html: 'Precio invalido.', classes: 'rounded'});
+            }
           }else{
             description.focus();
             M.toast({html: 'Descripción invalida.', classes: 'rounded'});  
@@ -168,10 +194,11 @@
         }
       }
 
-      function addArticleMotor(title, description){
+      function addArticleMotor(title, description, precio){
         var formData = new FormData();
         formData.append('title', title);
         formData.append('descripcion', description);
+        formData.append('precio', precio);
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
           if (xhr.readyState === 4){
@@ -194,11 +221,12 @@
         xhr.send(formData);
       }
 
-      function editArticleMotor(title, description){
+      function editArticleMotor(title, description, precio){
         var formData = new FormData();
         formData.append('id', actual_edit);
         formData.append('title', title);
         formData.append('descripcion', description);
+        formData.append('precio', precio);
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
           if (xhr.readyState === 4){

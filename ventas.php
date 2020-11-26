@@ -35,12 +35,13 @@
                       <th>Cliente</th>
                       <th>Articulo</th>
                       <th>Cantidad</th>
+                      <th>Total</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   <?php
-                    $query = sprintf("SELECT ventas.id_, ventas.cliente_id, ventas.articulo_id, ventas.cantidad_de_articulos, ventas.date_add, clientes.nombre, clientes.apellido, articulos.titulo as articulo_title FROM ventas INNER JOIN clientes on clientes.id_ = ventas.cliente_id INNER JOIN articulos ON articulos.id_ = ventas.articulo_id ORDER BY ventas.date_add ASC;");
+                    $query = sprintf("SELECT ventas.id_, ventas.cliente_id, ventas.articulo_id, ventas.cantidad_de_articulos, ventas.date_add, clientes.nombre, clientes.apellido, articulos.titulo as articulo_title, articulos.precio FROM ventas INNER JOIN clientes on clientes.id_ = ventas.cliente_id INNER JOIN articulos ON articulos.id_ = ventas.articulo_id ORDER BY ventas.date_add DESC;");
                     $sql = mysqli_query($con, $query);
                     $data = array();
                     while($rows= mysqli_fetch_array($sql)){
@@ -53,7 +54,8 @@
                               <td class="orange-text bold">'.$rows['date_add'].'</td>
                               <td>'.$rows['nombre'].'&nbsp;'.$rows['apellido'].'</td>
                               <td class="bold">'.$rows['articulo_title'].'</td>
-                              <td  class="red-text bold">'.$rows['cantidad_de_articulos'].'</td>
+                              <td  class="red-text">'.$rows['cantidad_de_articulos'].'</td>
+                              <td  class="red-text bold">'.number_format((((int)$rows['cantidad_de_articulos'])*((int)$rows['precio'])), 0, ',', '.').'</td>
                             </tr>';
                     }
                   ?>
@@ -88,7 +90,6 @@
                     <label>Artículo</label>
                   </div>
                   <div class="input-field col s12 m6">
-                    <i class="material-icons prefix green-text">account_box</i>
                     <input id="add_sale_cant_articles" type="number" class="validate">
                     <label for="add_sale_cant_articles">Cantidad de artículos</label>
                   </div>
@@ -144,7 +145,6 @@
             <label>Artículo</label>
           </div>
           <div class="input-field col s12 m6">
-            <i class="material-icons prefix green-text">account_box</i>
             <input id="add_sale_cant_articles_edit" type="number" class="validate">
             <label for="add_sale_cant_articles_edit">Cantidad de artículos</label>
           </div>
@@ -169,10 +169,23 @@
 
       function openModalEdit(id){
         actual_edit = id;
-        /*document.getElementById('add_new_client_name_edit').value = _clientes_[id]['nombre'];
-        document.getElementById('add_new_client_lat_name_edit').value = _clientes_[id]['apellido'];
-        document.getElementById('add_new_client_ci_edit').value = _clientes_[id]['ci_o_ruc'];
-        document.getElementById('add_new_client_phone_number_edit').value = _clientes_[id]['telefono'];*/
+        /*Iinicializar selector de cliente*/
+        var select_edit_client_id = document.getElementById('add-new-sale-client_edit');
+        var instace_client= M.FormSelect.getInstance(select_edit_client_id);
+        instace_client.destroy();
+        select_edit_client_id.value = _ventas_[id]['cliente_id'];
+        document.getElementById('add_sale_cant_articles_edit').value = _ventas_[id]['cantidad_de_articulos'];
+        M.FormSelect.init(select_edit_client_id);
+        /***********************************/
+
+        /*Iinicializar selector de articulo*/
+        var select_edit_article_id = document.getElementById('add-new-sale-article_edit');
+        var instace_article= M.FormSelect.getInstance(select_edit_article_id);
+        instace_article.destroy();
+        select_edit_article_id.value = _ventas_[id]['article_id'];
+        document.getElementById('add_sale_cant_articles_edit').value = _ventas_[id]['cantidad_de_articulos'];
+        M.FormSelect.init(select_edit_article_id);
+        /***********************************/
         M.Modal.getInstance(document.getElementById('modal-alert-add-edit')).open();
         M.updateTextFields();
       }
